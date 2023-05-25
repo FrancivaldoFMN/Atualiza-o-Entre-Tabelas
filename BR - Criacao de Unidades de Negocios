@@ -1,0 +1,42 @@
+(function executeRule(current, previous /*null when async*/ ) {
+
+    try {
+
+        var log = 'BR - Insercao Unidade de Negocios' + '\n';
+
+		// Criação do registro na tabela de Negocios
+        var gr = new GlideRecord('business_unit'); 
+        gr.initialize();
+        gr.name = current.name;
+        gr.bu_head = current.dept_head;
+        gr.company = current.company;
+        gr.insert(); 
+		
+		// Pega o Sys_Id do resgistro criado na tabela de Negocios
+        var id = gr.sys_id;
+        log += 'SYS ID ' + id + '\n'; 
+		
+		// Faz um consulta do ultimo registro criado na tabela de Departamento 
+        var cmn = new GlideRecord('cmn_department');
+        cmn.orderByDesc('sys_created_on');
+        cmn.setLimit(1);
+        cmn.query(); 
+
+		// Como ele identifica o ultimo registro criado seta no campo o ID do registro criado na tabela de Negocios
+        if (cmn.next()) {
+            
+            cmn.business_unit = id;
+            cmn.update();
+
+        } 
+
+    } catch (ex) {
+        log += 'ERRO: \n';
+        log += ex.message + '\n';
+
+    } finally {
+        log += '*****FIM*****\n';
+        gs.info(log);
+    }
+
+})(current, previous);
