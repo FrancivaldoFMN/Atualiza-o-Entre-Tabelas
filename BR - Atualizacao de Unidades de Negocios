@@ -1,0 +1,47 @@
+(function executeRule(current, previous /*null when async*/ ) {
+
+    try {
+        var log = 'BR - Atualizacao Unidades de Negocios' + '\n';
+
+        var id = current.sys_id;
+        log += 'Sys ID do Depart: ' + id + '\n';
+
+        var cmn = new GlideRecord('cmn_department');
+        cmn.addQuery('sys_id', id);
+        cmn.query();
+
+        if (cmn.next()) {
+            var namDepart = current.name;
+            var gerent = current.dept_head;
+            var uniNego = current.business_unit;
+
+            log += 'Sys ID do Nome: ' + namDepart + '\n';
+            log += 'Sys ID do Gerente: ' + gerent + '\n';
+            log += 'Sys ID do Unidade: ' + uniNego + '\n';
+        }
+
+        var gr = new GlideRecord('business_unit');
+        gr.addQuery('sys_id', uniNego);
+        gr.query();
+
+		log += 'Realizou o filtro' + '\n';
+
+        if (gr.next()) {
+
+            gr.name = namDepart;
+            gr.	bu_head = gerent;
+			gr.update();
+
+        }
+
+
+    } catch (ex) {
+        log += 'ERRO: \n';
+        log += ex.message + '\n';
+
+    } finally {
+        log += '*****FIM*****\n';
+        gs.info(log);
+    }
+
+})(current, previous);
